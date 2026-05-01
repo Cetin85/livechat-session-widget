@@ -147,15 +147,24 @@ function injectUI() {
 
       let anchor = null;
       // Search for a good anchor point in the details container
-      const potentialAnchors = detailsContainer.querySelectorAll('span, div');
-      for (const el of potentialAnchors) {
-        if (el.textContent.includes("Chatting time") || el.textContent.includes("Started on")) {
-          anchor = el.closest('div');
+      // Use querySelectorAll('*') but filter for leaf nodes (no element children) to avoid matching huge parent divs
+      const allElements = detailsContainer.querySelectorAll('*');
+      for (const el of allElements) {
+        if (el.children.length === 0 && (el.textContent.includes("Chatting time") || el.textContent.includes("Started on") || el.textContent === "Chat info")) {
+          // Found the specific text node's wrapper. Let's go up to a good block-level container.
+          anchor = el.parentElement;
+          if (anchor && anchor.parentElement && anchor.children.length < 2) {
+             anchor = anchor.parentElement;
+          }
           break;
         }
       }
 
-      if (!anchor) anchor = detailsContainer.firstChild;
+      if (!anchor) {
+          // Fallback to inserting at the top of the details container
+          anchor = detailsContainer.firstElementChild || detailsContainer;
+      }
+      
       if (anchor) anchor.insertAdjacentElement('afterend', createSessionIdUI(sessionId));
     });
   } catch (e) { }
