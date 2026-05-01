@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LiveChat Session ID Copier",
-  "version": "1.3.3",
+  "version": "1.4.0",
   "description": "LiveChat arşiv sayfalarında network isteklerini dinler, Session ID'yi yakalar ve popup ekranından veya sayfa üzerinden panoya kopyalamayı sağlar.",
   "icons": {
     "16": "icons/icon16.png",
