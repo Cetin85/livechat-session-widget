@@ -1,5 +1,5 @@
 /**
- * content_script.js (v1.3.3)
+ * content_script.js (v1.4.0)
  */
 
 window.addEventListener("message", (event) => {
@@ -29,22 +29,45 @@ function createSessionIdUI(sessionId) {
   container.style.cssText = `
     display: flex !important;
     flex-direction: column !important;
-    margin: 12px 0 !important;
-    padding: 12px !important;
-    background-color: #f8fafc !important;
-    border: 2px solid #5865f2 !important;
-    border-radius: 8px !important;
-    font-family: Inter, sans-serif !important;
-    gap: 10px !important;
+    margin: 16px 0 !important;
+    padding: 1px !important;
+    background: linear-gradient(135deg, #5865f2 0%, #4752c4 100%) !important;
+    border-radius: 12px !important;
+    font-family: 'Inter', -apple-system, system-ui, sans-serif !important;
+    box-shadow: 0 4px 15px rgba(88, 101, 242, 0.2) !important;
+    overflow: hidden !important;
     z-index: 2147483647 !important;
+    transition: all 0.3s ease !important;
+  `;
+
+  const inner = document.createElement("div");
+  inner.style.cssText = `
+    background: #ffffff !important;
+    border-radius: 11px !important;
+    padding: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
   `;
 
   const header = document.createElement("div");
-  header.style.cssText = `display: flex !important; justify-content: space-between !important; align-items: center !important;`;
+  header.style.cssText = `
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding-bottom: 8px !important;
+  `;
 
   const title = document.createElement("span");
   title.textContent = "SESSION ID";
-  title.style.cssText = `font-size: 11px !important; font-weight: 800 !important; color: #5865f2 !important;`;
+  title.style.cssText = `
+    font-size: 10px !important;
+    letter-spacing: 0.1em !important;
+    font-weight: 800 !important;
+    color: #5865f2 !important;
+    text-transform: uppercase !important;
+  `;
 
   const copyBtn = document.createElement("button");
   copyBtn.textContent = "Copy";
@@ -52,18 +75,28 @@ function createSessionIdUI(sessionId) {
     background: #5865f2 !important;
     color: white !important;
     border: none !important;
-    border-radius: 4px !important;
-    padding: 5px 12px !important;
+    border-radius: 6px !important;
+    padding: 4px 12px !important;
     cursor: pointer !important;
-    font-size: 12px !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
+    transition: all 0.2s ease !important;
+    outline: none !important;
   `;
+
+  copyBtn.onmouseover = () => { copyBtn.style.background = "#4752c4"; };
+  copyBtn.onmouseout = () => { copyBtn.style.background = "#5865f2"; };
 
   copyBtn.onclick = (e) => {
     e.preventDefault();
     navigator.clipboard.writeText(sessionId).then(() => {
-      copyBtn.textContent = "✅";
-      setTimeout(() => { copyBtn.textContent = "Copy"; }, 2000);
+      const originalText = copyBtn.textContent;
+      copyBtn.textContent = "Copied! ✅";
+      copyBtn.style.background = "#22c55e";
+      setTimeout(() => { 
+        copyBtn.textContent = originalText;
+        copyBtn.style.background = "#5865f2";
+      }, 2000);
     });
   };
 
@@ -73,19 +106,24 @@ function createSessionIdUI(sessionId) {
   const valBox = document.createElement("div");
   valBox.textContent = sessionId;
   valBox.style.cssText = `
-    font-family: monospace !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    background: #ffffff !important;
+    font-family: 'Roboto Mono', monospace !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    background: #f8fafc !important;
     padding: 10px !important;
     border: 1px solid #e2e8f0 !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     text-align: center !important;
-    color: #1a1b20 !important;
+    color: #1e293b !important;
+    word-break: break-all !important;
+    cursor: pointer !important;
   `;
+  
+  valBox.onclick = () => copyBtn.click();
 
-  container.appendChild(header);
-  container.appendChild(valBox);
+  inner.appendChild(header);
+  inner.appendChild(valBox);
+  container.appendChild(inner);
   return container;
 }
 
@@ -108,11 +146,11 @@ function injectUI() {
       }
 
       let anchor = null;
-      const spans = detailsContainer.querySelectorAll('span');
-      for (const span of spans) {
-        if (span.textContent.includes("Chatting time")) {
-          anchor = span.parentElement;
-          if (anchor && anchor.children.length < 2) anchor = anchor.parentElement;
+      // Search for a good anchor point in the details container
+      const potentialAnchors = detailsContainer.querySelectorAll('span, div');
+      for (const el of potentialAnchors) {
+        if (el.textContent.includes("Chatting time") || el.textContent.includes("Started on")) {
+          anchor = el.closest('div');
           break;
         }
       }
@@ -130,4 +168,5 @@ function start() {
   injectUI();
 }
 start();
-console.log("LiveChat Extension v1.3.3 Initialized");
+console.log("LiveChat Extension v1.4.0 Initialized");
+
